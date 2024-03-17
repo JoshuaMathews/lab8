@@ -1,7 +1,7 @@
 import unittest
 from unittest import TestCase
 from unittest.mock import patch, call
-
+from bitcoin import url
 import bitcoin
 
 class TestBitcoin(TestCase):
@@ -11,6 +11,11 @@ class TestBitcoin(TestCase):
         bitcoin.print_current_rate(9999.9999)
         mock_print.assert_called_once_with('The rate of the USD is $9999.9999.')
 
+    @patch('builtins.print')
+    def test_print_total(self, mock_print):
+        bitcoin.print_total(123456.789)
+        mock_print.assert_called_once_with('The total amount of USD you have in bitcoin is $123456.789.')
+
     def test_rate_from_api(self):
         expected_rate = 62787.9728
 
@@ -19,13 +24,17 @@ class TestBitcoin(TestCase):
         rate_result = bitcoin.get_rate_from_response(example_api_response)
         self.assertEqual(expected_rate, rate_result)
 
-    @patch('bitcoin.get_bitcoins')
-    def test_get_bitcoin_input(self, test):
+    def test_get_bitcoin_input(self):
+        result = bitcoin.get_bitcoins('5.0', 5.0)
+        self.assertEqual(result, 5.0)
 
-        result = bitcoin.get_bitcoins('5.0', 5)
+    def test_calculate_bitcoin_total(self):
+        result = bitcoin.calculate_bitcoin_total(5, 5)
+        self.assertEqual(result, 25)
 
-        test.assertEqual(result, 5.0)
-
+    def test_make_api_request(self):
+        (result, error) = bitcoin.make_api_request(url)
+        self.assertTrue(result)
 
 if __name__ == '__main__':
     unittest.main()
